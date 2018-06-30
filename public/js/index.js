@@ -1,4 +1,4 @@
-const socket = io();
+var socket = io();
 
 socket.on("connect", function() {
     console.log("Connected to server");
@@ -10,18 +10,21 @@ socket.on("disconnect", function() {
 });
 
 socket.on("newMessage", function(message) {
-    const formattedTime = moment(message.createdAt).format("h:mm a");
+    var formattedTime = moment(message.createdAt).format("h:mm a");
+    var template = $("#message-template").html();
+    var html = Mustache.render(template, {
+        text: message.text,
+        from: message.from,
+        createdAt: formattedTime
+    });
 
-    let li = $("<li></li>");
-    li.text(`${message.from} ${formattedTime}: ${message.text}`);
-
-    $("#messages").append(li);
+    $("#messages").append(html);
 });
 
 $("#message-form").on("submit", function(e) {
     e.preventDefault();
 
-    let messageTextbox =  $("[name=message]");
+    var messageTextbox =  $("[name=message]");
 
     socket.emit("createMessage", {
         from: "User",
